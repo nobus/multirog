@@ -9,12 +9,15 @@ class Location:
     def generate(self):
         self.loc = []
         for y in xrange(0, self.size):
-            self.loc.append([])
-            for x in xrange(0, self.size):
-                self.loc[y].append(0)
+            a = map(lambda x: 0, xrange(0, self.size))
+            self.loc.append(a)
 
     def get(self, y=None, x=None):
         if x and y:
-            return self.log[y][x]
+            try:
+                return self.loc[y][x]
+            except Exception, e:
+                print e
+                return None
         else:
             return self.loc
