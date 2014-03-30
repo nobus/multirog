@@ -3,6 +3,7 @@
 
 import tornado.ioloop
 import tornado.web
+from tornado import websocket
 
 
 class StatHandler(tornado.web.RequestHandler):
@@ -12,9 +13,21 @@ class StatHandler(tornado.web.RequestHandler):
         self.write(stat)
 
 
+class EchoWebSocket(websocket.WebSocketHandler):
+    def open(self):
+        print "WebSocket opened"
+
+    def on_message(self, message):
+        self.write_message(u"You said: " + message)
+
+    def on_close(self):
+        print "WebSocket closed"
+
+
 def main():
     application = tornado.web.Application([
         (r"/stat", StatHandler),
+        (r"/websock", EchoWebSocket),
     ])
 
     application.listen(8888)
