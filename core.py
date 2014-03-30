@@ -5,14 +5,16 @@ import tornado.ioloop
 import tornado.web
 
 
-class VersionHandler(tornado.web.RequestHandler):
+class StatHandler(tornado.web.RequestHandler):
     def get(self):
-        self.write("MultiROG - Multi Rouge Online Game")
+        stat = "MultiROG - Multi Rouge Online Game\n"
+        stat += "Version 0.1.0\n"
+        self.write(stat)
 
 
 def main():
     application = tornado.web.Application([
-        (r"/version", VersionHandler),
+        (r"/stat", StatHandler),
     ])
 
     application.listen(8888)
