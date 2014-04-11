@@ -17,7 +17,7 @@ class LocationTest(unittest.TestCase):
         self.assertTrue(l)
 
     def test_get_yx(self):
-        x = y = self.loc.size-1
+        x = y = self.loc.size - 1
         a = self.loc.get(y=y, x=x)
         self.assertIsNotNone(a)
 
