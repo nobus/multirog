@@ -9,6 +9,8 @@ class Location:
 
         self.free_position = self.search_free_position()
 
+        self.current_players = []
+
     def get_tree(self):
         x = random.randint(0, 99)
         if x <= self.tree_perc:
@@ -42,3 +44,14 @@ class Location:
 
     def get_free_position(self):
         return self.free_position
+
+    def register_player(self, name):
+        if name not in self.current_players:
+            self.current_players.append(name)
+
+    def unregister_player(self, name):
+        if name in self.current_players:
+            self.current_players.remove(name)
+
+    def get_current_players(self):
+        return self.current_players
