@@ -1,11 +1,14 @@
+import os
 import sys
 
-path = "/Users/nobus/develop/multirog"
+path = os.getcwd()
 sys.path.append(path)
 
 from player import Player
+from location import Location
 
 
 def test_move_decorator():
-    p = Player("nobus", 5, 10, 20)
+    l = Location()
+    p = Player("nobus", l)
     assert type(p.move_left()) == tuple
