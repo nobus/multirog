@@ -27,5 +27,21 @@ class LocationTest(unittest.TestCase):
         p = self.loc.get(y=y, x=x)
         assert p == 0
 
+    def test_registred_players(self):
+        self.loc.register_player("nobus")
+        self.loc.register_player("bobus")
+
+        p = self.loc.get_current_players()
+        assert len(p) == 2
+
+        self.loc.unregister_player("popus")
+        p = self.loc.get_current_players()
+        assert len(p) == 2
+
+        self.loc.unregister_player("bobus")
+        p = self.loc.get_current_players()
+        assert len(p) == 1
+
+
 if __name__ == '__main__':
     unittest.main()
