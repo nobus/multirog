@@ -3,9 +3,14 @@
 class Player(object):
     def __init__(self, name, location):
         self.name = name
-        self.location = location
-        self.x, self.y = self.location.search_free_position()
         self.direction = "down"
+
+        self.location = location
+        self.location.register_player(self.name)
+        self.x, self.y = self.location.search_free_position()
+
+    def get_location(self):
+        return self.location
 
     def get_position(self):
         return (self.x, self.y, self.get_direction())
