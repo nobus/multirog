@@ -2,10 +2,12 @@ import random
 
 
 class Location:
-    def __init__(self, size=20, tree_perc=15):
+    def __init__(self, size=32, tree_perc=15):
         self.size = size
         self.tree_perc = tree_perc
         self.generate()
+
+        self.free_position = self.search_free_position()
 
     def get_tree(self):
         x = random.randint(0, 99)
@@ -29,3 +31,14 @@ class Location:
                 return None
         else:
             return self.loc
+
+    def search_free_position(self):
+        while True:
+            x = random.randint(0, self.size - 1)
+            y = random.randint(0, self.size - 1)
+
+            if self.loc[x][y] == 0:
+                return x, y
+
+    def get_free_position(self):
+        return self.free_position
