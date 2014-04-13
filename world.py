@@ -14,7 +14,7 @@ class World:
         self.locations = []
 
         for y in xrange(0, self.size):
-            a = map(lambda x: Location(), xrange(0, self.size))
+            a = map(lambda x: Location(x, y, self.size), xrange(0, self.size))
             self.locations.append(a)
 
     def add_player(self, name):
@@ -58,3 +58,20 @@ class World:
             ret.append((name, x, y))
 
         return ret
+
+    def move_player(self, name, direction):
+        player = self.players.get(name, None)
+        if player:
+            next_loc_x, next_loc_y, nx, ny = player.move(direction)
+
+            if next_loc_x >= 0 and next_loc_y >= 0:
+                next_loc = self.get_location(next_loc_x, next_loc_y)
+
+                if next_loc.get_path(nx, ny):
+                    cur_loc = player.get_location()
+
+                    next_loc.register_player(self.name)
+                    cur_loc.unregister_player(self.name)
+
+                    player.set_location(next_loc)
+                    player.set_position(nx, ny)
