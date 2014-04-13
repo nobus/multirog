@@ -64,3 +64,14 @@ def test_get_players_from_location():
     assert len(p[0]) == 3
     name = p[0][0]
     assert name == "nobus" or name == "popus"
+
+
+def test_move_player():
+    w = World()
+    w.add_player("nobus")
+
+    w.move_player("nobus", "left")
+
+    p = w.get_player("nobus")
+    d = p.get_direction()
+    assert d == "left"
