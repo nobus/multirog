@@ -18,51 +18,40 @@ class Player(object):
     def get_direction(self):
         return self.direction
 
-    def turn_up(self):
-        self.direction = "up"
+    def set_direction(self, direction):
+        self.direction = direction
 
-    def turn_down(self):
-        self.direction = "down"
+    def set_location(self, location):
+        self.location = location
 
-    def turn_left(self):
-        self.direction = "left"
+    def set_position(self, x, y):
+        self.x = x
+        self.y = y
 
-    def turn_right(self):
-        self.direction = "right"
+    def move(self, direction):
+        if direction == self.get_direction():
 
-    def _move(f):
-        def m(self):
-            f(self)
-            return self.get_position()
+            if direction == "up":
+                new_y = self.y - 1
+                new_x = self.x
+            elif direction == "down":
+                new_y = self.y + 1
+                new_x = self.x
+            elif direction == "left":
+                new_y = self.y
+                new_x = self.x - 1
+            elif direction == "right":
+                new_y = self.y
+                new_x = self.x + 1
 
-        return m
+            next_loc_x, next_loc_y, nx, ny = self.location.next_location(direction, new_x, new_y)
 
-    @_move
-    def move_up(self):
-        if self.get_direction() == "up":
-            self.y -= 1
+            if next_loc_x is None and next_loc_y is None:
+                if self.location.get_path(new_x, new_y):
+                    self.set_position(new_x, new_y)
+            else:
+                return next_loc_x, next_loc_y, nx, ny
         else:
-            self.turn_up()
+            self.set_direction(direction)
 
-    @_move
-    def move_down(self):
-        if self.get_direction() == "down":
-            self.y += 1
-        else:
-            self.turn_down()
-
-    @_move
-    def move_left(self):
-        if self.get_direction() == "left":
-            self.x -= 1
-        else:
-            self.turn_left()
-
-    @_move
-    def move_right(self):
-        if self.get_direction() == "right":
-            self.x += 1
-        else:
-            self.turn_right()
-
-    _move = staticmethod(_move)
+        return -1, -1, 0, 0
