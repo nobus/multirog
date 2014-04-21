@@ -6,6 +6,31 @@ import tornado.ioloop
 import tornado.web
 from tornado import websocket
 
+
+'''
+Protocol prototype.
+Commands:
+- enter
+- exit
+- move_(up, down, left, right)
+- loc_map
+- players
+
+Examples:
+-> {"enter": "nobus"}
+<- {"loc_map": [], "players: []}
+
+-> {"move_up": 1}
+<- {"move_up": "ok"}
+-> {"move_up": 1}
+<- {"move_up": "ok"}
+-> {"move_up": 1}
+<- {"move_up": "ok", "loc_map": [], "players: []}
+
+-> {"exit": "nobus"}
+
+'''
+
 clients = []
 
 
