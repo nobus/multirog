@@ -6,38 +6,54 @@ import tornado.ioloop
 import tornado.web
 from tornado import websocket
 
+from world import World
 
 '''
 Protocol prototype.
 Commands:
-- enter
+- login
 - exit
 - move_(up, down, left, right)
 - loc_map
 - players
 
 Examples:
--> {"enter": "nobus"}
-<- {"loc_map": [], "players: []}
+-> {"login": "nobus"}
+<- {"map": [], "players: []}
 
 -> {"move_up": 1}
 <- {"move_up": "ok"}
 -> {"move_up": 1}
 <- {"move_up": "ok"}
 -> {"move_up": 1}
-<- {"move_up": "ok", "loc_map": [], "players: []}
+<- {"move_up": "ok", "map": [], "players: []}
 
 -> {"exit": "nobus"}
 
 '''
 
-clients = []
+
+class Game:
+    def __init__(self):
+        self.clients = []
+        self.world = World()
+
+    def add_client(self, client):
+        self.clients.append(client)
+
+    def del_client(self, client):
+        try:
+            self.clients.remove(client)
+        except Exception, e:
+            print e
+
+game = Game()
 
 
 class EchoWebSocket(websocket.WebSocketHandler):
     def open(self):
         print "WebSocket opened"
-        clients.append(self)
+        game.add_client(self)
 
     def on_message(self, message):
         try:
@@ -49,7 +65,7 @@ class EchoWebSocket(websocket.WebSocketHandler):
 
     def on_close(self):
         print "WebSocket closed"
-        clients.remove(self)
+        game.del_client(self)
 
 
 class StatHandler(tornado.web.RequestHandler):
