@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
 import random
 
 import cjson
@@ -23,7 +22,7 @@ Commands:
 - players
 
 Examples:
--> {"login": "nobus"}
+-> {"login": "nobus", "password": "qwerty"}
 <- {"key": hash, "map": [], "players: []}
 
 -> {"key": hash, "move": "up"}
@@ -54,52 +53,76 @@ class Game:
         except Exception, e:
             print e
 
-    def get_key(self, login):
-        h = md5("%s%s%s" % (login, time.time(), random.random()))
+    def get_key(self):
+        h = md5(str(random.random()))
         return h.hexdigest()
 
-    def proto_login(self, client, value):
-        k = self.get_key(value)
-        self.players[k] = (client, value)
-        return {"key": k, "map": [], "players": []}
+    def login(self, client, req_data):
+        '''
+        password - use in future
+        '''
+        if "password" in req_data:
+            login = req_data.get("login", False)
+            passwd = req_data.get("password", False)
 
-    def proto_key(self, client, key):
+            if login and passwd:
+                k = self.get_key()
+                self.players[k] = (client, login)
+                return {"key": k, "map": [], "players": []}
+            else:
+                return "error login or password"
+        else:
+            return "password not found"
+
+    def check_key(self, client, req_data):
+        key = req_data.get("key", False)
+
         if key in self.players:
             if client == self.players[key][0]:
-                return True
+                return key
 
         return False
 
-    def proto_exit(self, client, value):
-        try:
-            del self.players[value]
-            return value
-        except Exception, e:
-            print e
-            return "error player: %s" % value
+    def get_login_from_key(self, key):
+        client, login = self.players.get(key, [False, False])
 
-    def proto_move(self, client, value):
-        return "ok_%s" % value
+        if client and login:
+            return login
+
+    def exit_game(self, key, req_data):
+        req_login = req_data.get("exit", False)
+
+        if req_login:
+            key_login = self.get_login_from_key(key)
+
+            if key_login and key_login == req_login:
+                del self.players[key]
+                return req_login
+            else:
+                return "error player: %s" % req_login
+        else:
+            return "error protocol"
+
+    def move(self, key, req_data):
+        return "ok_%s" % req_data.get("move", "no")
 
     def process_data(self, client, data):
         ret = {}
 
-        if "key" in data and "login" not in data:
-            key = data.pop("key")
-            if not self.proto_key(client, key):
-                return {"key": "error key"}
-                return ret
-        elif "key" not in data and "login" in data:
-            pass
-        else:
-            return {"key": "error key"}
+        if "login" in data:
+            return {"login": self.login(client, data)}
+        elif "key" in data:
+            key = self.check_key(client, data)
+            if key:
+                if "exit" in data:
+                    return {"exit": self.exit_game(key, data)}
 
-        for cmd, value in data.iteritems():
-            f = getattr(self, "proto_%s" % cmd)
-            if callable(f):
-                ret[cmd] = f(client, value)
+                if "move" in data:
+                    return {"move": self.move(key, data)}
             else:
-                ret[cmd] = "error command protocol"
+                return {"key": "error key"}
+        else:
+            return {"error": "please login"}
 
         return ret
 
@@ -122,7 +145,8 @@ class EchoWebSocket(websocket.WebSocketHandler):
             data = cjson.decode(message)
             resp = game.notify(self, data)
             self.write_message(cjson.encode(resp))
-        except:
+        except Exception, e:
+            print e
             req = cjson.encode({"error": "undefined"})
             self.write_message(req)
 
