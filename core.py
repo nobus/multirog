@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import random
-
 import cjson
 import tornado.ioloop
 import tornado.web
@@ -57,6 +56,26 @@ class Game:
         h = md5(str(random.random()))
         return h.hexdigest()
 
+    def get_login_from_key(self, key):
+        client, login = self.players.get(key, [False, False])
+
+        if client and login:
+            return login
+
+    def add_player(self, client, login):
+        k = self.get_key()
+        self.players[k] = (client, login)
+        return {"key": k, "map": [], "players": []}
+
+    def del_player(self, key, login):
+        key_login = self.get_login_from_key(key)
+
+        if key_login and key_login == login:
+            del self.players[key]
+            return login
+        else:
+            return "error player: %s" % login
+
     def login(self, client, req_data):
         '''
         password - use in future
@@ -66,9 +85,7 @@ class Game:
             passwd = req_data.get("password", False)
 
             if login and passwd:
-                k = self.get_key()
-                self.players[k] = (client, login)
-                return {"key": k, "map": [], "players": []}
+                return self.add_player(client, login)
             else:
                 return "error login or password"
         else:
@@ -83,23 +100,11 @@ class Game:
 
         return False
 
-    def get_login_from_key(self, key):
-        client, login = self.players.get(key, [False, False])
-
-        if client and login:
-            return login
-
     def exit_game(self, key, req_data):
-        req_login = req_data.get("exit", False)
+        login = req_data.get("exit", False)
 
-        if req_login:
-            key_login = self.get_login_from_key(key)
-
-            if key_login and key_login == req_login:
-                del self.players[key]
-                return req_login
-            else:
-                return "error player: %s" % req_login
+        if login:
+            return self.del_player(key, login)
         else:
             return "error protocol"
 
