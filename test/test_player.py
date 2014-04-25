@@ -13,6 +13,7 @@ def test_move():
     player = Player("nobus", loc)
 
     loc_x, loc_y, x, y = player.move("down")
+    # !!!!!! bug: sometimes 1 == -1
     assert loc_x == -1
 
     x, y, d = player.get_position()
