@@ -125,7 +125,7 @@ class Game:
                 if "move" in data:
                     return {"move": self.move(key, data)}
             else:
-                return {"key": "error key"}
+                return {"error": "error key"}
         else:
             return {"error": "please login"}
 
