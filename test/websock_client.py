@@ -6,9 +6,9 @@ import websocket
 
 
 def encoder(f):
-    def wrapper(params):
+    def wrapper(*args, **kwargs):
         try:
-            return cjson.encode(f(params))
+            return cjson.encode(f(*args, **kwargs))
         except:
             return ""
 
@@ -16,9 +16,9 @@ def encoder(f):
 
 
 def decoder(f):
-    def wrapper(params):
+    def wrapper(*args, **kwargs):
         try:
-            return cjson.decode(f(params))
+            return cjson.decode(f(*args, **kwargs))
         except:
             return ""
 
@@ -26,18 +26,18 @@ def decoder(f):
 
 
 @encoder
-def login_request(login):
-    return {"login": login}
+def login_request(login, passwd):
+    return {"login": login, "password": passwd}
 
 
 @encoder
 def exit_request(key, login):
-    return {"exit": login}
+    return {"key": key, "exit": login}
 
 
 @encoder
-def move_request(direct):
-    return {"move": direct}
+def move_request(key, direct):
+    return {"key": key, "move": direct}
 
 
 @decoder
@@ -51,21 +51,21 @@ def main():
     #websocket.enableTrace(True)
     ws = websocket.create_connection(url)
 
-    ws.send(login_request("nobus1"))
+    ws.send(login_request("nobus1", "qqqqq"))
     result = rec_v(ws)
     print "login result:", result
     key = result["login"].get("key", False)
 
     if key:
-        ws.send(exit_request("bobus"))
+        ws.send(exit_request(key, "bobus"))
         result = rec_v(ws)
         print "exit result:", result
 
-        ws.send(move_request("up"))
+        ws.send(move_request(key, "up"))
         result = rec_v(ws)
         print "move result:", result
 
-        ws.send(exit_request("nobus1"))
+        ws.send(exit_request(key, "nobus1"))
         result = rec_v(ws)
         print "exit result:", result
     else:
